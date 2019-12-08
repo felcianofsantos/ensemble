@@ -25,7 +25,7 @@ import joblib
 
 st.title('DESAFIO SME')
 dtypes = {'NIVEL':object}
-
+#CARREGA O MODELO
 @st.cache(suppress_st_warning=True)
 def load_model():
     df_final = pd.read_csv('DADOS_FINAIS.csv',sep=';',dtype=dtypes, encoding = "ISO-8859-1",decimal=',')
@@ -34,6 +34,11 @@ def load_model():
 
 df_final = load_model()
 
+#FUNCAO QUE TIRA OS VALORES NA
+#TRANSFORMAR VARIAVEIS COM GET DUMMIES
+#SEPARA OS DADOS NOS EIXO X E Y
+#FAZ O SMOTE NOS DADOS
+#SEPARA OS DADOS EM TREINO E TESTE
 @st.cache(suppress_st_warning=True)
 def pre_pro(df0):
     df0 = df0.dropna()
@@ -62,7 +67,7 @@ def pre_pro(df0):
     X_train, X_valid, y_train, y_valid = train_test_split(X0_sm, y0_sm, test_size=0.3, random_state=42)
     return X_train, X_valid, y_train, y_valid, X0_sm, y0_sm
 
-
+#GERA OS INPUTS NO STREAMLIT
 @st.cache(suppress_st_warning=True)
 def accept_user_data():
     idade = st.text_input('Colocar IDADE:')
@@ -88,7 +93,7 @@ if st.checkbox('Dados SME'):
 if st.checkbox('Input Dados'):
     user_prediction_data = accept_user_data()
 
-
+#ALGORITMO RANDOM FOREST
 @st.cache(suppress_st_warning=True)
 def floresta(X_train, X_valid, y_train, y_valid, X0_sm, y0_sm):
     # TREINO
@@ -106,6 +111,7 @@ def floresta(X_train, X_valid, y_train, y_valid, X0_sm, y0_sm):
 
     return report0, score0,y_pred2
 
+#ALGORITMO REGRESSAO LOGISTICA
 def logisticRegression(X_train, X_valid, y_train, y_valid, X0_sm, y0_sm):
     lr = LogisticRegression()
     lr.fit(X_train, y_train)
@@ -114,6 +120,9 @@ def logisticRegression(X_train, X_valid, y_train, y_valid, X0_sm, y0_sm):
     report0 = classification_report(y_valid, y_pred0)
     return score0, report0
 
+
+
+#MOSTRA OS VALORES NA TELA DO STREAMLIT
 choose_model = st.sidebar.selectbox("Escolha seu modelo",
 			   ["Nenhum", "Random Forest", 'XGBoost','Regressao Logistica'])
 
@@ -131,7 +140,7 @@ elif choose_model == "Random Forest":
     st.text("O relatório da Classificação da Random Forest é: ")
     st.write(report0)
     st.text("Probabilidade de acidente: ")
-    st.write(y_pred2)
+    st.write(y_pred2[1,:])
 
 elif choose_model == "Regressao Logistica":
     report1, score1  = logisticRegression(X_train, X_valid, y_train, y_valid, X0_sm, y0_sm)
